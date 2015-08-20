@@ -89,8 +89,8 @@ df.agg <- arrange(summarize(group.by.customer, totalQty = sum(totalQty), totalSa
 # limit to just those with 30 or more orders
 best.customers <- df.agg[df.agg$totalQty>30,]
 
-# sort by order size
-best.customers[order(best.customers$totalQty, decreasing = TRUE),]
+# sort by order total sales
+best.customers[order(best.customers$totalSales, decreasing = TRUE),]
 ```
 
 ```
@@ -100,18 +100,18 @@ best.customers[order(best.customers$totalQty, decreasing = TRUE),]
 ##      custId                 custName totalQty totalSales
 ## 1  63531739               Kecia Bile       54     110.01
 ## 2  47980745           Katina Ihenyen       47     106.51
-## 3  49436759 Sylva Å vestkovÃ¡, PhDr.       43      90.32
-## 4  64728773            Carie Delphia       43      92.42
-## 5  45527083          Apryl Solkowitz       42     106.49
-## 6  26340216      Jimmy Phippard, Sr.       41      95.92
-## 7  10146181       Prince Badalamenti       40      74.01
-## 8  63225425            Arnulfo Dyess       39     102.04
-## 9  15643514          Desirae Aracena       38      89.72
-## 10 60240440              Vito Edgmon       38      75.35
-## 11 60720182             Vella Chicon       35      74.51
-## 12 19027036               Jewel Huey       33      66.51
-## 13 45626421            Doreen Noblet       33      78.06
-## 14 43718558        JiÅÃ­ KÅemeÄek       32      83.13
+## 3  45527083          Apryl Solkowitz       42     106.49
+## 4  63225425            Arnulfo Dyess       39     102.04
+## 5  26340216      Jimmy Phippard, Sr.       41      95.92
+## 6  64728773            Carie Delphia       43      92.42
+## 7  49436759 Sylva Å vestkovÃ¡, PhDr.       43      90.32
+## 8  15643514          Desirae Aracena       38      89.72
+## 9  43718558        JiÅÃ­ KÅemeÄek       32      83.13
+## 10 45626421            Doreen Noblet       33      78.06
+## 11 64818055            ZdenÄk NovÃ½       31      77.95
+## 12 60240440              Vito Edgmon       38      75.35
+## 13 60720182             Vella Chicon       35      74.51
+## 14 10146181       Prince Badalamenti       40      74.01
 ## 15 49508903          Lorriane Stroup       31      73.55
-## 16 64818055            ZdenÄk NovÃ½       31      77.95
+## 16 19027036               Jewel Huey       33      66.51
 ```
