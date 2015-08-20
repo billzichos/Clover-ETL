@@ -1,0 +1,97 @@
+---
+title: "Clover ETL Tutorial"
+author: "Bill Zichos"
+date: "August 19, 2015"
+output: html_document
+---
+
+Before we get started...
+```{r}
+setwd("~/GitHub/Clover-ETL")
+unzip("sample-data.zip")
+```
+
+## Orders
+
+Process the *orders* data.  This first involves loading and formatting the data.  Since we only care about orders placed in 2014, we will filter prior to merging with other data sets.
+
+
+1. Load orders.txt
+```{r}
+orders <- read.fwf(paste(getwd(), "/orders.txt", sep = ""), widths = c(10, 10, 8, 8, 10),header = FALSE, skip = 1, as.is = TRUE, col.names = c("orderId", "custId", "itemId", "qty", "transDate"), colClasses = c("character", "character", "character", "numeric", "character"), strip.white = TRUE)
+
+# format the date so we can do some processing on it later
+orders$transDate <- as.Date(orders$transDate, "%d.%m.%Y")
+```
+
+2. Filter orders for 2014
+```{r include = FALSE}
+# load the "lubridate" library for some special date-handling features
+library("lubridate")
+```
+```{r}
+orders.2014 <- orders[year(orders$transDate)==2014,]
+```
+
+## Customers
+
+1. Load customers.txt
+```{r}
+customers <- read.csv(paste(getwd(), "/customers.txt", sep =""), sep = ";", header = TRUE, col.names = c("CUST_ID", "CUST_NAME", "STREET", "CITY", "STATE", "POST_CODE"))
+
+customers$CUST_ID <- as.character(customers$CUST_ID)
+```
+
+2. Filter C* State Customers
+```{r}
+customers.c <- customers[customers$STATE %in% c("CA", "CO", "CT"),]
+```
+
+## Items
+
+Excel files are a bit trickier.  In reality, I would ask the source to change to CSV or manually change myself, but I want to prove that Excel can be handled in R.  This requires the "gdata" R package library and the Perl libraries. 
+
+1. Load items.xlsx
+```{r include = FALSE}
+library(gdata)
+# installed the perl libraries from http://www.activestate.com/activeperl/downloads
+installXLSXsupport(perl = "C:\\Perl64\\bin\\perl.exe")
+```
+```{r}
+items <- read.xls(paste(getwd(), "/items.xlsx", sep = ""), sheet = 1, header = TRUE, perl = "C:\\Perl64\\bin\\perl.exe")
+
+items$ID <- as.character(items$ID)
+```
+
+2. Exclude non-2-liter items.
+```{r}
+items.2Liter <- items[items$Unit=="2-Liter",]
+```
+
+## Combine the datasets
+First merge Orders with Customers.  Then take the result and merge with Items.  The resulting dataset has 304 observations and 13 variables.
+```{r}
+df <- merge(orders.2014, customers.c, by.x = "custId", by.y = "CUST_ID")
+df <- merge(df, items.2Liter, by.x = "itemId", by.y = "ID")
+
+# calculate the sales price - Unit Price * Quantity
+df$totalSales <- df$qty * df$UnitPrice
+```
+
+```{r include = FALSE}
+library(dplyr)
+```
+```{r}
+df <- select(df, custId, custName = CUST_NAME, totalQty = qty, totalSales)
+
+group.by.customer <- group_by(df, custId, custName)
+
+# summarize by customer
+df.agg <- arrange(summarize(group.by.customer, totalQty = sum(totalQty), totalSales = sum(totalSales)), totalQty)
+
+# limit to just those with 30 or more orders
+best.customers <- df.agg[df.agg$totalQty>30,]
+
+# sort by order size
+best.customers[order(best.customers$totalQty, decreasing = TRUE),]
+```
