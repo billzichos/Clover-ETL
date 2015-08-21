@@ -87,14 +87,14 @@ group.by.customer <- group_by(df, custId, custName)
 df.agg <- arrange(summarize(group.by.customer, totalQty = sum(totalQty), totalSales = sum(totalSales)), totalQty)
 
 # limit to just those with 30 or more orders
-best.customers <- df.agg[df.agg$totalQty>30,]
+best.customers <- df.agg[df.agg$totalQty>=30,]
 
 # sort by order total sales
 best.customers[order(best.customers$totalSales, decreasing = TRUE),]
 ```
 
 ```
-## Source: local data frame [16 x 4]
+## Source: local data frame [17 x 4]
 ## Groups: custId
 ## 
 ##      custId                 custName totalQty totalSales
@@ -113,5 +113,6 @@ best.customers[order(best.customers$totalSales, decreasing = TRUE),]
 ## 13 60720182             Vella Chicon       35      74.51
 ## 14 10146181       Prince Badalamenti       40      74.01
 ## 15 49508903          Lorriane Stroup       31      73.55
-## 16 19027036               Jewel Huey       33      66.51
+## 16 61170313       Joycelyn Reasinger       30      72.79
+## 17 19027036               Jewel Huey       33      66.51
 ```
