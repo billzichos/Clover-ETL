@@ -41,3 +41,10 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+#BZ Custom
+.gitignore
+sample-data
+sample-data.zip
+simpletest
+simpletest.zip
